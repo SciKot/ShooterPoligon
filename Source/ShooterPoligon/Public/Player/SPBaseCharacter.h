@@ -37,4 +37,5 @@ public:
 private:
     void MoveForward(float Amount);
     void MoveRight(float Amount);
+    void Run(float Amount);
 };

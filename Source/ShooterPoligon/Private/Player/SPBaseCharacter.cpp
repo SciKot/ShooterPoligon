@@ -14,7 +14,7 @@ ASPBaseCharacter::ASPBaseCharacter()
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
     // Attaching spring arm component to the root component of character (collision)
     SpringArmComponent->SetupAttachment(GetRootComponent());
-    //To allow char to look up and down
+    // To allow char to look up and down
     SpringArmComponent->bUsePawnControlRotation = true;
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
@@ -42,17 +42,27 @@ void ASPBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAxis("MoveRight", this, &ASPBaseCharacter::MoveRight);
     PlayerInputComponent->BindAxis("LookUp", this, &ASPBaseCharacter::AddControllerPitchInput);
     PlayerInputComponent->BindAxis("TurnAround", this, &ASPBaseCharacter::AddControllerYawInput);
+    PlayerInputComponent->BindAxis("Run", this, &ASPBaseCharacter::Run);
+    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASPBaseCharacter::Jump);
 }
 
 void ASPBaseCharacter::MoveForward(float Amount)
 {
-    AddMovementInput(GetActorForwardVector(), Amount);
+    AddMovementInput(GetActorForwardVector(), 0.5 * Amount);
 }
 
 void ASPBaseCharacter::MoveRight(float Amount)
 {
-    AddMovementInput(GetActorRightVector(), Amount);
+    AddMovementInput(GetActorRightVector(), 0.5 * Amount);
 }
 
-//Note,characters turns with help of controller function.
-//This can help in separating character rotation and camera rotation.
+void ASPBaseCharacter::Run(float Amount)
+{
+    if (InputComponent->GetAxisValue("MoveForward") > 0)
+    {
+        AddMovementInput(GetActorForwardVector(), Amount);
+    }
+}
+
+// Note,characters turns with help of controller function.
+// This can help in separating character rotation and camera rotation.
