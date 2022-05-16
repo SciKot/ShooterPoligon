@@ -6,8 +6,11 @@
 #include "GameFramework/Character.h"
 #include "SPBaseCharacter.generated.h"
 
+
 class UCameraComponent;
 class USpringArmComponent;
+class USPHealthComponent;
+class UTextRenderComponent;
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPBaseCharacter : public ACharacter
@@ -24,6 +27,12 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UCameraComponent* CameraComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    USPHealthComponent* HealthComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UTextRenderComponent* HealthTextComponent;
 
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;

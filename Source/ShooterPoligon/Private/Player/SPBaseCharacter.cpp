@@ -5,7 +5,10 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SPCharacterMovementComponent.h"
-#include "Runtime/Engine/Public/EngineGlobals.h"
+#include "Components/SPHealthComponent.h"
+#include "Components/TextRenderComponent.h"
+
+DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All)
 
 // Sets default values
 ASPBaseCharacter::ASPBaseCharacter(const FObjectInitializer& ObjInit)
@@ -17,11 +20,16 @@ ASPBaseCharacter::ASPBaseCharacter(const FObjectInitializer& ObjInit)
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
     // Attaching spring arm component to the root component of character (collision)
     SpringArmComponent->SetupAttachment(GetRootComponent());
-    // To allow char to look up and down
+    // To allow character to look up and down
     SpringArmComponent->bUsePawnControlRotation = true;
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
+
+    HealthComponent = CreateDefaultSubobject<USPHealthComponent>("HealthComponent");
+
+    HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
+    HealthTextComponent->SetupAttachment(GetRootComponent());
 }
 
 bool ASPBaseCharacter::isRunning() const
@@ -42,12 +50,18 @@ float ASPBaseCharacter::GetMovementDirection() const
 void ASPBaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
+
+    check(HealthComponent);
+    check(HealthTextComponent);
 }
 
 // Called every frame
 void ASPBaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    const auto Health = HealthComponent->GetHealth();
+    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT(" % .0f"), Health)));
 }
 
 // Called to bind functionality to input
