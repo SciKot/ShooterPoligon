@@ -16,7 +16,7 @@ class SHOOTERPOLIGON_API ASPBaseCharacter : public ACharacter
 
 public:
     // Sets default values for this character's properties
-    ASPBaseCharacter();
+    ASPBaseCharacter(const FObjectInitializer& ObjInit);
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -24,6 +24,11 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UCameraComponent* CameraComponent;
+
+public:
+    UFUNCTION(BlueprintCallable, Category = "Movement")
+    bool isRunning() const;
+
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
@@ -35,7 +40,12 @@ public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
+    bool isRunRequested = false;
+    bool isMovingForward = false;
+
     void MoveForward(float Amount);
     void MoveRight(float Amount);
-    void Run(float Amount);
+
+    void OnRunningStart();
+    void OnRunningStop();
 };

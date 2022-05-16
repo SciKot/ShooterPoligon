@@ -4,9 +4,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/SPCharacterMovementComponent.h"
 
 // Sets default values
-ASPBaseCharacter::ASPBaseCharacter()
+ASPBaseCharacter::ASPBaseCharacter(const FObjectInitializer& ObjInit)
+    : Super(ObjInit.SetDefaultSubobjectClass<USPCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -19,6 +21,11 @@ ASPBaseCharacter::ASPBaseCharacter()
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
+}
+
+bool ASPBaseCharacter::isRunning() const
+{
+    return isRunRequested && isMovingForward && !GetVelocity().IsZero();
 }
 
 // Called when the game starts or when spawned
@@ -42,26 +49,30 @@ void ASPBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAxis("MoveRight", this, &ASPBaseCharacter::MoveRight);
     PlayerInputComponent->BindAxis("LookUp", this, &ASPBaseCharacter::AddControllerPitchInput);
     PlayerInputComponent->BindAxis("TurnAround", this, &ASPBaseCharacter::AddControllerYawInput);
-    PlayerInputComponent->BindAxis("Run", this, &ASPBaseCharacter::Run);
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASPBaseCharacter::Jump);
+    PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASPBaseCharacter::OnRunningStart);
+    PlayerInputComponent->BindAction("Run", IE_Released, this, &ASPBaseCharacter::OnRunningStop);
 }
 
 void ASPBaseCharacter::MoveForward(float Amount)
 {
-    AddMovementInput(GetActorForwardVector(), 0.5 * Amount);
+    isMovingForward = Amount > 0;
+    AddMovementInput(GetActorForwardVector(), Amount);
 }
 
 void ASPBaseCharacter::MoveRight(float Amount)
 {
-    AddMovementInput(GetActorRightVector(), 0.5 * Amount);
+    AddMovementInput(GetActorRightVector(), Amount);
 }
 
-void ASPBaseCharacter::Run(float Amount)
+void ASPBaseCharacter::OnRunningStart ()
 {
-    if (InputComponent->GetAxisValue("MoveForward") > 0)
-    {
-        AddMovementInput(GetActorForwardVector(), Amount);
-    }
+    isRunRequested = true;
+}
+
+void ASPBaseCharacter::OnRunningStop ()
+{
+    isRunRequested = false;
 }
 
 // Note,characters turns with help of controller function.
