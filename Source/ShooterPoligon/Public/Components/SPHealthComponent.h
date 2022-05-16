@@ -7,6 +7,7 @@
 #include "SPHealthComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnDeath)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float)
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTERPOLIGON_API USPHealthComponent : public UActorComponent
@@ -22,6 +23,7 @@ public:
     bool IsDead() { return Health <= 0.0f; }
 
     FOnDeath OnDeath;
+    FOnHealthChanged OnHealthChanged;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
