@@ -5,6 +5,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SPCharacterMovementComponent.h"
+#include "Runtime/Engine/Public/EngineGlobals.h"
 
 // Sets default values
 ASPBaseCharacter::ASPBaseCharacter(const FObjectInitializer& ObjInit)
@@ -26,6 +27,15 @@ ASPBaseCharacter::ASPBaseCharacter(const FObjectInitializer& ObjInit)
 bool ASPBaseCharacter::isRunning() const
 {
     return isRunRequested && isMovingForward && !GetVelocity().IsZero();
+}
+
+float ASPBaseCharacter::GetMovementDirection() const
+{
+    if (GetVelocity().IsZero()) return 0.0f;
+    const auto NormalizedVelocityVector = GetVelocity().GetSafeNormal();
+    const auto AngleBetween = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(GetActorForwardVector(), NormalizedVelocityVector)));
+    const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), NormalizedVelocityVector);
+    return CrossProduct.IsZero() ? AngleBetween : AngleBetween * FMath::Sign(CrossProduct.Z);
 }
 
 // Called when the game starts or when spawned

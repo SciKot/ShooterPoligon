@@ -25,14 +25,16 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UCameraComponent* CameraComponent;
 
-public:
-    UFUNCTION(BlueprintCallable, Category = "Movement")
-    bool isRunning() const;
-
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
 public:
+    UFUNCTION(BlueprintCallable, Category = "Movement")
+    bool isRunning() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Movement")
+    float GetMovementDirection() const;
+
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 
