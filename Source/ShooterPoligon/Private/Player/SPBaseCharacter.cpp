@@ -59,6 +59,9 @@ void ASPBaseCharacter::BeginPlay()
     OnHealthChanged(HealthComponent->GetHealth());
     HealthComponent->OnDeath.AddUObject(this, &ASPBaseCharacter::OnDeath);
     HealthComponent->OnHealthChanged.AddUObject(this, &ASPBaseCharacter::OnHealthChanged);
+
+    LandedDelegate.AddDynamic(this, &ASPBaseCharacter::OnGroundLanded);
+
 }
 
 // Called every frame
@@ -72,6 +75,7 @@ void ASPBaseCharacter::Tick(float DeltaTime)
 void ASPBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+    check(PlayerInputComponent);
 
     PlayerInputComponent->BindAxis("MoveForward", this, &ASPBaseCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &ASPBaseCharacter::MoveRight);
@@ -111,7 +115,7 @@ void ASPBaseCharacter::OnDeath ()
 
     GetCharacterMovement()->DisableMovement();
 
-    SetLifeSpan(5.0f);
+    SetLifeSpan(LifeSpanOnDeath);
     if (Controller)
     {
         Controller->ChangeState(NAME_Spectating);
@@ -121,6 +125,18 @@ void ASPBaseCharacter::OnDeath ()
 void ASPBaseCharacter::OnHealthChanged(float Health)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT(" % .0f"), Health)));
+}
+
+void ASPBaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
+    const auto FallVelocityZ = -GetVelocity().Z;
+    UE_LOG(BaseCharacterLog, Display, TEXT("Fall Velocity Z: %f"), FallVelocityZ);
+
+    if (FallVelocityZ < LandedDamageVelocity.X) return;
+
+    const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+    UE_LOG(BaseCharacterLog, Display, TEXT("Final damage: %f"), FinalDamage);
+    TakeDamage(FinalDamage, FDamageEvent(), nullptr, nullptr);
 }
 
 // Note,characters turns with help of controller function.
