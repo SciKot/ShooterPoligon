@@ -11,6 +11,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class USPHealthComponent;
 class UTextRenderComponent;
+class USPWeaponComponent;
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPBaseCharacter : public ACharacter
@@ -33,6 +34,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* HealthTextComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    USPWeaponComponent* WeaponComponent;
 
     UPROPERTY(EditDefaultsOnly, Category = "Animation")
     UAnimMontage* DeathAnimMontage;

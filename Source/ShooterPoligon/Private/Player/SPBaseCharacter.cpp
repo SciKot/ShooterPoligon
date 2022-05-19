@@ -8,6 +8,8 @@
 #include "Components/SPHealthComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
+#include "Components/SPWeaponComponent.h"
+#include "Components/CapsuleComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All)
 
@@ -23,6 +25,7 @@ ASPBaseCharacter::ASPBaseCharacter(const FObjectInitializer& ObjInit)
     SpringArmComponent->SetupAttachment(GetRootComponent());
     // To allow character to look up and down
     SpringArmComponent->bUsePawnControlRotation = true;
+    SpringArmComponent->SocketOffset = FVector(0.0f, 100.0f, 80.0f);
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
@@ -31,6 +34,9 @@ ASPBaseCharacter::ASPBaseCharacter(const FObjectInitializer& ObjInit)
 
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
     HealthTextComponent->SetupAttachment(GetRootComponent());
+    HealthTextComponent->SetOwnerNoSee(true);
+
+    WeaponComponent = CreateDefaultSubobject<USPWeaponComponent>("WeaponComponent");
 }
 
 bool ASPBaseCharacter::isRunning() const
@@ -61,7 +67,6 @@ void ASPBaseCharacter::BeginPlay()
     HealthComponent->OnHealthChanged.AddUObject(this, &ASPBaseCharacter::OnHealthChanged);
 
     LandedDelegate.AddDynamic(this, &ASPBaseCharacter::OnGroundLanded);
-
 }
 
 // Called every frame
@@ -84,6 +89,8 @@ void ASPBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASPBaseCharacter::Jump);
     PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASPBaseCharacter::OnRunningStart);
     PlayerInputComponent->BindAction("Run", IE_Released, this, &ASPBaseCharacter::OnRunningStop);
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USPWeaponComponent::StartFire);
+    PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USPWeaponComponent::StopFire);
 }
 
 void ASPBaseCharacter::MoveForward(float Amount)
@@ -120,6 +127,8 @@ void ASPBaseCharacter::OnDeath ()
     {
         Controller->ChangeState(NAME_Spectating);
     }
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
 void ASPBaseCharacter::OnHealthChanged(float Health)
