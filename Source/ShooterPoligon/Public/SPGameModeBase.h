@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+
 #include "SPGameModeBase.generated.h"
 
 /**
@@ -12,6 +13,6 @@
 UCLASS()
 class SHOOTERPOLIGON_API ASPGameModeBase : public AGameModeBase
 {
-    GENERATED_BODY()
-    ASPGameModeBase();
+	GENERATED_BODY()
+	ASPGameModeBase();
 };
