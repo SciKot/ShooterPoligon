@@ -4,13 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+
 #include "SPPlayerController.generated.h"
 
-/**
- *
- */
 UCLASS()
 class SHOOTERPOLIGON_API ASPPlayerController : public APlayerController
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 };

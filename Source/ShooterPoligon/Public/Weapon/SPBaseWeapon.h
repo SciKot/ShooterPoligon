@@ -4,50 +4,73 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
 #include "SPBaseWeapon.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
+
 class USkeletalMeshKomponent;
+
+USTRUCT(BlueprintType)
+struct FAmmoData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	int32 Bullets;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "!Infinite"))
+	int32 Clips;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	bool Infinite;
+};
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPBaseWeapon : public AActor
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    ASPBaseWeapon();
+	ASPBaseWeapon();
 
-    virtual void StartFire();
-    virtual void StopFire();
+	FOnClipEmptySignature OnClipEmpty;
+
+	virtual void StartFire();
+	virtual void StopFire();
+
+	void ChangeClip();
+	bool CanReload() const;
 
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    USkeletalMeshComponent* WeaponMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	USkeletalMeshComponent* WeaponMesh;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    FName MuzzleSocketName = "MuzzleSocket";
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	FName MuzzleSocketName = "MuzzleSocket";
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float TraceMaxDistance = 2500.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	float TraceMaxDistance = 2500.0f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float DamageAmount = 5.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	FAmmoData DefaultAmmo{15, 10, false};
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float TimeBetweenShots = 0.1f;
+	virtual void BeginPlay() override;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float BulletSpread = 0.5f;  //Degrees
+	virtual void MakeShot();
+	APlayerController* GetPlayerController() const;
+	bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
+	FVector GetMuzzleWorldLocation() const;
+	FVector GetMuzzleForwardVector() const;
+	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
 
-    virtual void BeginPlay() override;
+	void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
 
-    void MakeShot();
-    APlayerController* GetPlayerController() const;
-    bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
-    FVector GetMuzzleWorldLocation() const;
-    bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
-    void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
-    void MakeDamage(FHitResult& HitResult);
+	void DecreaseAmmo();
+	bool IsAmmoEmpty() const;
+	bool IsClipEmpty() const;
+	void LogAmmo();
 
 private:
-    FTimerHandle ShotTimerHandle;
+	FAmmoData CurrentAmmo;
 };

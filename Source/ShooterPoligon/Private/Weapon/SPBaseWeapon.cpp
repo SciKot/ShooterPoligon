@@ -1,112 +1,137 @@
 // Shooter Poligon. Created in educational purposes by SciKot. All Rights Reserved.
 
 #include "Weapon/SPBaseWeapon.h"
+
 #include "Components/SkeletalMeshComponent.h"
-#include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
 
-DEFINE_LOG_CATEGORY_STATIC(BaseWeaponLog, All, All)
+DEFINE_LOG_CATEGORY_STATIC(LogBaseWeapon, All, All)
 
 ASPBaseWeapon::ASPBaseWeapon()
 {
-    PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = false;
 
-    WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
-    SetRootComponent(WeaponMesh);
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
+	SetRootComponent(WeaponMesh);
 }
 
-void ASPBaseWeapon::StartFire ()
-{
-    MakeShot();
-    GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASPBaseWeapon::MakeShot, TimeBetweenShots, true);
-}
+void ASPBaseWeapon::StartFire() {}
 
-void ASPBaseWeapon::StopFire()
-{
-    GetWorldTimerManager().ClearTimer(ShotTimerHandle);
-}
+void ASPBaseWeapon::StopFire() {}
 
 void ASPBaseWeapon::BeginPlay()
 {
-    Super::BeginPlay();
+	Super::BeginPlay();
 
-    check(WeaponMesh);
+	check(WeaponMesh);
+	checkf(DefaultAmmo.Bullets > 0, TEXT("Default bullets couldn't be less or equal zero."))
+		checkf(DefaultAmmo.Clips > 0, TEXT("Default clips couldn't be less or equal zero.")) CurrentAmmo = DefaultAmmo;
 }
 
-void ASPBaseWeapon::MakeShot()
-{
-    if (!GetWorld()) return;
-
-    FVector TraceStart, TraceEnd;
-    if (!GetTraceData(TraceStart, TraceEnd)) return;
-
-    FHitResult HitResult;
-    MakeHit(HitResult, TraceStart, TraceEnd);
-
-    if (HitResult.bBlockingHit)
-    {
-        MakeDamage(HitResult);
-
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 3.0f, 0, 3.0f);
-        DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 24, FColor::Red, false, 5.0f);
-    }
-    else
-    {
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), TraceEnd, FColor::Red, false, 3.0f, 0, 3.0f);
-    }
-}
+void ASPBaseWeapon::MakeShot() {}
 
 APlayerController* ASPBaseWeapon::GetPlayerController() const
 {
-    const auto Player = Cast<ACharacter>(GetOwner());
-    if (!Player) return nullptr;
+	const auto Player = Cast<ACharacter>(GetOwner());
+	if (!Player) return nullptr;
 
-    return Player->GetController<APlayerController>();
+	return Player->GetController<APlayerController>();
 }
 
 bool ASPBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const
 {
-    const auto Controller = GetPlayerController();
-    if (!Controller) return false;
+	const auto Controller = GetPlayerController();
+	if (!Controller) return false;
 
-    Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
-    return true;
+	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	return true;
 }
 
 FVector ASPBaseWeapon::GetMuzzleWorldLocation() const
 {
-    return WeaponMesh->GetSocketLocation(MuzzleSocketName);
+	return WeaponMesh->GetSocketLocation(MuzzleSocketName);
+}
+
+FVector ASPBaseWeapon::GetMuzzleForwardVector() const
+{
+	return WeaponMesh->GetSocketRotation(MuzzleSocketName).Vector();
 }
 
 bool ASPBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
 {
-    FVector ViewLocation;
-    FRotator ViewRotation;
-    if (!GetPlayerViewPoint(ViewLocation, ViewRotation)) return false;
+	FVector ViewLocation;
+	FRotator ViewRotation;
+	if (!GetPlayerViewPoint(ViewLocation, ViewRotation)) return false;
 
-    TraceStart = ViewLocation;
-    const auto HalfRad = FMath::DegreesToRadians(BulletSpread);
-    const FVector ShootDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
-    TraceEnd = TraceStart + ShootDirection * TraceMaxDistance;
-    return true;
+	TraceStart = ViewLocation;
+	const FVector ShootDirection = ViewRotation.Vector();
+	TraceEnd = TraceStart + ShootDirection * TraceMaxDistance;
+	return true;
 }
 
 void ASPBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd)
 {
-    if (!GetWorld()) return;
+	if (!GetWorld()) return;
 
-    FCollisionQueryParams CollisionParams;
-    CollisionParams.AddIgnoredActor(GetOwner());
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetOwner());
 
-    GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
+	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
 }
 
-void ASPBaseWeapon::MakeDamage(FHitResult& HitResult)
+void ASPBaseWeapon::DecreaseAmmo()
 {
-    const auto DamagedActor = HitResult.GetActor();
-    if (!DamagedActor) return;
+	if (CurrentAmmo.Bullets == 0)
+	{
+		UE_LOG(LogBaseWeapon, Warning, TEXT("-----Clip is empty-----"));
+		return;
+	}
+	CurrentAmmo.Bullets--;
+	LogAmmo();
 
-    DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), GetPlayerController(), this);
+	if (IsClipEmpty() && !IsAmmoEmpty())
+	{
+		StopFire();
+		OnClipEmpty.Broadcast();
+	}
+}
+
+bool ASPBaseWeapon::IsAmmoEmpty() const
+{
+	return !CurrentAmmo.Infinite && IsClipEmpty() && CurrentAmmo.Clips == 0;
+}
+
+bool ASPBaseWeapon::IsClipEmpty() const
+{
+	return CurrentAmmo.Bullets == 0;
+}
+
+void ASPBaseWeapon::ChangeClip()
+{
+	if (!CurrentAmmo.Infinite)
+	{
+		if (CurrentAmmo.Clips == 0)
+		{
+			UE_LOG(LogBaseWeapon, Warning, TEXT("-----No more clips-----"));
+			return;
+		}
+		CurrentAmmo.Clips--;
+	}
+	CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+	UE_LOG(LogBaseWeapon, Display, TEXT("-----Change clip-----"));
+}
+
+bool ASPBaseWeapon::CanReload() const
+{
+	return CurrentAmmo.Bullets < DefaultAmmo.Bullets && CurrentAmmo.Clips > 0;
+}
+
+void ASPBaseWeapon::LogAmmo()
+{
+	FString AmmoInfo = "Ammo " + FString::FromInt(CurrentAmmo.Bullets) + " / ";
+	AmmoInfo += CurrentAmmo.Infinite ? "Infinite" : FString::FromInt(CurrentAmmo.Clips * DefaultAmmo.Bullets);
+	UE_LOG(LogBaseWeapon, Display, TEXT("%s"), *AmmoInfo);
 }

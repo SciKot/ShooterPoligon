@@ -2,35 +2,82 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "CoreMinimal.h"
+
 #include "SPWeaponComponent.generated.h"
 
 class ASPBaseWeapon;
 
+USTRUCT(BlueprintType)
+struct FWeaponData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	TSubclassOf<ASPBaseWeapon> WeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	UAnimMontage* ReloadAnimMontage;
+};
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTERPOLIGON_API USPWeaponComponent : public UActorComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    USPWeaponComponent();
+	USPWeaponComponent();
 
-    void StartFire();
-    void StopFire();
+	void StartFire();
+	void StopFire();
+	void NextWeapon();
+	void Reload();
 
 protected:
-    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-    TSubclassOf<ASPBaseWeapon> WeaponClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TArray<FWeaponData> WeaponData;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-    FName WeaponAttachPointName = "WeaponPoint";
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FName WeaponEquipSocketName = "WeaponPoint";
 
-    virtual void BeginPlay() override;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FName WeaponArmorySocketName = "ArmorySocket";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage* EquipAnimMontage;
+
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
-    UPROPERTY()
-    ASPBaseWeapon* CurrentWeapon = nullptr;
+	UPROPERTY()
+	ASPBaseWeapon* CurrentWeapon = nullptr;
 
-    void SpawnWeapon();
+	UPROPERTY()
+	TArray<ASPBaseWeapon*> SpawnedWeapons;
+
+	UPROPERTY()
+	UAnimMontage* CurrentReloadAnimMontage = nullptr;
+
+	int32 CurrentWeaponIndex = 0;
+	bool EquipAnimInProgress = false;
+	bool ReloadAnimInProgress = false;
+
+	void SpawnWeapons();
+	void AttachWeaponToSocket(ASPBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName);
+	void EquipWeapon(int32 WeaponIndex);
+
+	void PlayAnimMontage(UAnimMontage* Animation);
+	void InitAnimations();
+
+	void OnEquipFinished(USkeletalMeshComponent* MeshComp);
+	void OnReloadFinished(USkeletalMeshComponent* MeshComp);
+
+	bool CanFire() const;
+	bool CanEquip() const;
+	bool CanReload() const;
+
+	void OnEmptyClip();
+	void ChangeClip();
 };
