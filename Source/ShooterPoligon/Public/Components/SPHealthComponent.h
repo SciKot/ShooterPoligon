@@ -4,11 +4,9 @@
 
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
+#include "SPCoreTypes.h"
 
 #include "SPHealthComponent.generated.h"
-
-DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTERPOLIGON_API USPHealthComponent : public UActorComponent

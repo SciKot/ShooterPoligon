@@ -4,12 +4,10 @@
 
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
+#include "SPCoreTypes.h"
 
 #include "SPPlayerHUDWidget.generated.h"
 
-/**
- *
- */
 UCLASS()
 class SHOOTERPOLIGON_API USPPlayerHUDWidget : public UUserWidget
 {
@@ -18,4 +16,16 @@ class SHOOTERPOLIGON_API USPPlayerHUDWidget : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	float GetHealthPercent() const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool GetWeaponUIData(FWeaponUIData& UIData) const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool GetWeaponAmmoData(FAmmoData& AmmoData) const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool IsPlayerAlive() const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool IsPlayerSpecteting() const;
 };

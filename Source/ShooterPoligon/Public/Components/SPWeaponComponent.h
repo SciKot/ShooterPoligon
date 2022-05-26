@@ -4,22 +4,11 @@
 
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
+#include "SPCoreTypes.h"
 
 #include "SPWeaponComponent.generated.h"
 
 class ASPBaseWeapon;
-
-USTRUCT(BlueprintType)
-struct FWeaponData
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	TSubclassOf<ASPBaseWeapon> WeaponClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	UAnimMontage* ReloadAnimMontage;
-};
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTERPOLIGON_API USPWeaponComponent : public UActorComponent
@@ -33,6 +22,9 @@ public:
 	void StopFire();
 	void NextWeapon();
 	void Reload();
+
+	bool GetWeaponUIData(FWeaponUIData& UIData) const;
+	bool GetWeaponAmmoData(FAmmoData& AmmoData) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")

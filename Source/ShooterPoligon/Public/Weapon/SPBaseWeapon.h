@@ -4,27 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SPCoreTypes.h"
 
 #include "SPBaseWeapon.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
-
 class USkeletalMeshKomponent;
-
-USTRUCT(BlueprintType)
-struct FAmmoData
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	int32 Bullets;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "!Infinite"))
-	int32 Clips;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	bool Infinite;
-};
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPBaseWeapon : public AActor
@@ -42,6 +26,9 @@ public:
 	void ChangeClip();
 	bool CanReload() const;
 
+	FWeaponUIData GetUIData() const { return UIData; }
+	FAmmoData GetAmmoData() const { return CurrentAmmo; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent* WeaponMesh;
@@ -54,6 +41,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FAmmoData DefaultAmmo{15, 10, false};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	FWeaponUIData UIData;
 
 	virtual void BeginPlay() override;
 

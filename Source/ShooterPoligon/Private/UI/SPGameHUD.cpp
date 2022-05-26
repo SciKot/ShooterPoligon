@@ -9,7 +9,7 @@ void ASPGameHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
-	DrawCrossHair();
+	//DrawCrossHair();
 }
 
 void ASPGameHUD::BeginPlay()
