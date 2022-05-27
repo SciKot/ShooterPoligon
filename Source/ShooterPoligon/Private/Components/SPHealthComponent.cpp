@@ -13,6 +13,14 @@ USPHealthComponent::USPHealthComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+bool USPHealthComponent::TryToAddHealth(float HealAmount)
+{
+	if (FMath::IsNearlyEqual(Health, MaxHealth)) return false;
+
+	SetHealth(Health + HealAmount);
+	return true;
+}
+
 void USPHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();

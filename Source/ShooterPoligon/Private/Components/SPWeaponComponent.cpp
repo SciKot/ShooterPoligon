@@ -65,6 +65,18 @@ bool USPWeaponComponent::GetWeaponAmmoData(FAmmoData& AmmoData) const
 	}
 }
 
+bool USPWeaponComponent::TryToAddAmmo(TSubclassOf<ASPBaseWeapon> WeaponType, int32 ClipsAmount)
+{
+	for (const auto Weapon : SpawnedWeapons)
+	{
+		if (Weapon && Weapon->IsA(WeaponType))
+		{
+			return Weapon->TryToAddAmmo(ClipsAmount);
+		}
+	}
+	return false;
+}
+
 void USPWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -208,9 +220,24 @@ bool USPWeaponComponent::CanEquip() const
 	return !EquipAnimInProgress && !ReloadAnimInProgress;
 }
 
-void USPWeaponComponent::OnEmptyClip()
+void USPWeaponComponent::OnEmptyClip(ASPBaseWeapon* AmmoEmptyWeapon)
 {
-	ChangeClip();
+	if (!AmmoEmptyWeapon) return;
+
+	if (CurrentWeapon == AmmoEmptyWeapon)
+	{
+		ChangeClip();
+	}
+	else
+	{
+		for (const auto Weapon : SpawnedWeapons)
+		{
+			if (Weapon == AmmoEmptyWeapon)
+			{
+				Weapon->ChangeClip();
+			}
+		}
+	}
 }
 
 void USPWeaponComponent::ChangeClip()

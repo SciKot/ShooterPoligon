@@ -5,7 +5,7 @@
 // weapon
 class ASPBaseWeapon;
 
-DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnClipEmptySignature, ASPBaseWeapon*);
 
 USTRUCT(BlueprintType)
 struct FAmmoData
