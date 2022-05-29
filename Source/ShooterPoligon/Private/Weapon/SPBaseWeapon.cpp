@@ -27,8 +27,8 @@ void ASPBaseWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	check(WeaponMesh);
-	checkf(DefaultAmmo.Bullets > 0, TEXT("Default bullets couldn't be less or equal zero."))
-		checkf(DefaultAmmo.Clips > 0, TEXT("Default clips couldn't be less or equal zero.")) CurrentAmmo = DefaultAmmo;
+	checkf(DefaultAmmo.Bullets > 0, TEXT("Default bullets couldn't be less or equal zero."));
+	checkf(DefaultAmmo.Clips > 0, TEXT("Default clips couldn't be less or equal zero.")) CurrentAmmo = DefaultAmmo;
 }
 
 void ASPBaseWeapon::MakeShot() {}
@@ -77,6 +77,7 @@ void ASPBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, co
 	if (!GetWorld()) return;
 
 	FCollisionQueryParams CollisionParams;
+	CollisionParams.bReturnPhysicalMaterial = true;
 	CollisionParams.AddIgnoredActor(GetOwner());
 
 	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);

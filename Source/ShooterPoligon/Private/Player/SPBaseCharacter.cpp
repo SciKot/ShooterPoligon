@@ -45,6 +45,7 @@ void ASPBaseCharacter::BeginPlay()
 	check(HealthComponent);
 	check(HealthTextComponent);
 	check(GetCharacterMovement());
+	check(GetMesh());
 
 	OnHealthChanged(HealthComponent->GetHealth());
 	HealthComponent->OnDeath.AddUObject(this, &ASPBaseCharacter::OnDeath);
@@ -130,7 +131,7 @@ void ASPBaseCharacter::OnDeath()
 {
 	UE_LOG(LogBaseCharacter, Display, TEXT("Player %s is dead"), *GetName());
 
-	PlayAnimMontage(DeathAnimMontage);
+	// PlayAnimMontage(DeathAnimMontage);
 
 	GetCharacterMovement()->DisableMovement();
 
@@ -142,6 +143,9 @@ void ASPBaseCharacter::OnDeath()
 
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	WeaponComponent->StopFire();
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
 }
 
 void ASPBaseCharacter::OnHealthChanged(float Health)

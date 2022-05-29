@@ -7,15 +7,16 @@
 
 #include "SPRifleWeapon.generated.h"
 
-/**
- *
- */
+class USPWeaponFXComponent;
+
 UCLASS()
 class SHOOTERPOLIGON_API ASPRifleWeapon : public ASPBaseWeapon
 {
 	GENERATED_BODY()
 
 public:
+	ASPRifleWeapon();
+
 	virtual void StartFire() override;
 	virtual void StopFire() override;
 
@@ -28,6 +29,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DamageAmount = 5.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "VFX")
+	USPWeaponFXComponent* WeaponFXComponent;
+
+	virtual void BeginPlay() override;
 
 	virtual void MakeShot() override;
 	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;

@@ -9,6 +9,7 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class USPWeaponFXComponent;
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPProjectile : public AActor
@@ -26,6 +27,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon");
 	UProjectileMovementComponent* MovementComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "VFX")
+	USPWeaponFXComponent* WeaponFXComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon");
 	float DamageRadius = 200.0f;
