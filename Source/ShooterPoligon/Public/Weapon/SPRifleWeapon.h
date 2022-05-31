@@ -8,6 +8,8 @@
 #include "SPRifleWeapon.generated.h"
 
 class USPWeaponFXComponent;
+class UNiagaraComponent;
+class UNiagaraSystem;
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPRifleWeapon : public ASPBaseWeapon
@@ -30,6 +32,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DamageAmount = 5.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	UNiagaraSystem* TraceFX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	FString TraceTargetName = "TraceTarget";
+
 	UPROPERTY(VisibleAnywhere, Category = "VFX")
 	USPWeaponFXComponent* WeaponFXComponent;
 
@@ -38,8 +46,14 @@ protected:
 	virtual void MakeShot() override;
 	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
 
-	void MakeDamage(FHitResult& HitResult);
-
 private:
 	FTimerHandle ShotTimerHandle;
+
+	UPROPERTY()
+	UNiagaraComponent* MuzzleFXComponent;
+
+	void MakeDamage(const FHitResult& HitResult);
+	void InitMuzzleFX();
+	void SetMuzzleFXVisibility(bool Visible);
+	void SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd);
 };

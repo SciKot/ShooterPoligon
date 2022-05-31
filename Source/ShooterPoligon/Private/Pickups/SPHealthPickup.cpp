@@ -1,6 +1,5 @@
 // Shooter Poligon. Created in educational purposes by SciKot. All Rights Reserved.
 
-
 #include "Pickups/SPHealthPickup.h"
 
 #include "Components/SPHealthComponent.h"

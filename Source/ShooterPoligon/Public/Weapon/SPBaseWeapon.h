@@ -9,6 +9,8 @@
 #include "SPBaseWeapon.generated.h"
 
 class USkeletalMeshKomponent;
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPBaseWeapon : public AActor
@@ -47,6 +49,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FWeaponUIData UIData;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	UNiagaraSystem* MuzzleFX;
+
 	virtual void BeginPlay() override;
 
 	virtual void MakeShot();
@@ -64,6 +69,8 @@ protected:
 	bool IsAmmoFull() const;
 
 	void LogAmmo();
+
+	UNiagaraComponent* SpawnMuzzleFX();
 
 private:
 	FAmmoData CurrentAmmo;

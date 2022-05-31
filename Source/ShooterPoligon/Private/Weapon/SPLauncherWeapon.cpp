@@ -32,4 +32,5 @@ void ASPLauncherWeapon::MakeShot()
 	}
 
 	DecreaseAmmo();
+	SpawnMuzzleFX();
 }

@@ -23,7 +23,4 @@ protected:
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
 
 	virtual void BeginPlay() override;
-
-private:
-	void DrawCrossHair();
 };

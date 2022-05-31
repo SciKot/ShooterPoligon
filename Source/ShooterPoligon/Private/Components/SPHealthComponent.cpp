@@ -2,8 +2,11 @@
 
 #include "Components/SPHealthComponent.h"
 
+#include "Camera/CameraShakeBase.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Controller.h"
+#include "GameFramework/Pawn.h"
 #include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All)
@@ -51,6 +54,8 @@ void USPHealthComponent::OnTakeAnyDamage(
 		GetWorld()->GetTimerManager().SetTimer(
 			AutoHealTimer, this, &USPHealthComponent::OnAutoHealTimerFired, HealTick, true, AutoHealDelay);
 	}
+
+	PlayCameraShake();
 }
 
 void USPHealthComponent::OnAutoHealTimerFired()
@@ -65,8 +70,24 @@ void USPHealthComponent::OnAutoHealTimerFired()
 	}
 }
 
-void USPHealthComponent::SetHealth(float Value)
+void USPHealthComponent::SetHealth(float NewHealth)
 {
-	Health = FMath::Clamp(Value, 0.0f, MaxHealth);
-	OnHealthChanged.Broadcast(Health);
+	const auto NextHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+	const auto HealthDelta = NextHealth - Health;
+
+	Health = NextHealth;
+	OnHealthChanged.Broadcast(Health, HealthDelta);
+}
+
+void USPHealthComponent::PlayCameraShake()
+{
+	if (IsDead()) return;
+
+	const auto Player = Cast<APawn>(GetOwner());
+	if (!Player) return;
+
+	const auto Controller = Player->GetController<APlayerController>();
+	if (!Controller || !Controller->PlayerCameraManager) return;
+
+	Controller->PlayerCameraManager->StartCameraShake(CameraShake);
 }

@@ -8,6 +8,8 @@
 
 #include "SPHealthComponent.generated.h"
 
+class UCameraShakeBase;
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTERPOLIGON_API USPHealthComponent : public UActorComponent
 {
@@ -46,6 +48,9 @@ protected:
 		meta = (ClampMin = 0.0f, ClampMax = 10000.0f, EditCondition = "isAutoHeal"))
 	float HealPerTick = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	TSubclassOf<UCameraShakeBase> CameraShake;
+
 	UFUNCTION()
 	void OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy,
 		AActor* DamageCauser);
@@ -58,4 +63,5 @@ private:
 
 	void SetHealth(float Value);
 	void OnAutoHealTimerFired();
+	void PlayCameraShake();
 };

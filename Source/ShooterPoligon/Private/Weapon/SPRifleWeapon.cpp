@@ -4,6 +4,8 @@
 
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Weapon/Components/SPWeaponFXComponent.h"
 
 ASPRifleWeapon::ASPRifleWeapon()
@@ -20,6 +22,7 @@ void ASPRifleWeapon::BeginPlay()
 
 void ASPRifleWeapon::StartFire()
 {
+	InitMuzzleFX();
 	GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASPRifleWeapon::MakeShot, TimeBetweenShots, true);
 	MakeShot();
 }
@@ -27,6 +30,7 @@ void ASPRifleWeapon::StartFire()
 void ASPRifleWeapon::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+	SetMuzzleFXVisibility(false);
 }
 
 void ASPRifleWeapon::MakeShot()
@@ -47,19 +51,17 @@ void ASPRifleWeapon::MakeShot()
 	FHitResult HitResult;
 	MakeHit(HitResult, TraceStart, TraceEnd);
 
+	FVector TraceFXEnd = TraceEnd;
+	;
 	if (HitResult.bBlockingHit)
 	{
+		TraceFXEnd = HitResult.ImpactPoint;
 		MakeDamage(HitResult);
 
-		DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 3.0f, 0, 3.0f);
-		// DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 24, FColor::Red, false, 5.0f);
 		WeaponFXComponent->PlayImpactFX(HitResult);
 	}
-	else
-	{
-		DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), TraceEnd, FColor::Red, false, 3.0f, 0, 3.0f);
-	}
 
+	SpawnTraceFX(GetMuzzleWorldLocation(), TraceFXEnd);
 	DecreaseAmmo();
 }
 
@@ -76,10 +78,37 @@ bool ASPRifleWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
 	return true;
 }
 
-void ASPRifleWeapon::MakeDamage(FHitResult& HitResult)
+void ASPRifleWeapon::MakeDamage(const FHitResult& HitResult)
 {
 	const auto DamagedActor = HitResult.GetActor();
 	if (!DamagedActor) return;
 
 	DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), GetPlayerController(), this);
+}
+
+void ASPRifleWeapon::InitMuzzleFX()
+{
+	if (!MuzzleFXComponent)
+	{
+		MuzzleFXComponent = SpawnMuzzleFX();
+	}
+	SetMuzzleFXVisibility(true);
+}
+
+void ASPRifleWeapon::SetMuzzleFXVisibility(bool Visible)
+{
+	if (MuzzleFXComponent)
+	{
+		MuzzleFXComponent->SetPaused(!Visible);
+		MuzzleFXComponent->SetVisibility(Visible, true);
+	}
+}
+
+void ASPRifleWeapon::SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd)
+{
+	const auto TraceFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TraceFX, TraceStart);
+	if (TraceFXComponent)
+	{
+		TraceFXComponent->SetNiagaraVariableVec3(TraceTargetName, TraceEnd);
+	}
 }
