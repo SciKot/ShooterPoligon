@@ -77,13 +77,25 @@ bool USPWeaponComponent::TryToAddAmmo(TSubclassOf<ASPBaseWeapon> WeaponType, int
 	return false;
 }
 
+bool USPWeaponComponent::IsAmmoNeeded(TSubclassOf<ASPBaseWeapon> WeaponType)
+{
+	for (const auto Weapon : SpawnedWeapons)
+	{
+		if (Weapon && Weapon->IsA(WeaponType))
+		{
+			return !Weapon->IsAmmoFull();
+		}
+	}
+	return false;
+}
+
 void USPWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	checkf(WeaponData.Num() == 2, TEXT("Our character should hold 2 weapons"))
+	checkf(WeaponData.Num() == 2, TEXT("Our character should hold 2 weapons"));
 
-		CurrentWeaponIndex = 0;
+	CurrentWeaponIndex = 0;
 	InitAnimations();
 	SpawnWeapons();
 	EquipWeapon(CurrentWeaponIndex);

@@ -4,7 +4,7 @@ class SPUtils
 {
 public:
 	template <typename T>
-	static T* GetSPPlayerComponent(APawn* PlayerPawn)
+	static T* GetSPPlayerComponent(AActor* PlayerPawn)
 	{
 		if (!PlayerPawn) return nullptr;
 

@@ -65,6 +65,11 @@ void ASPBasePickup::Tick(float DeltaTime)
 	}
 }
 
+bool ASPBasePickup::CouldBeTaken() const
+{
+	return !GetWorldTimerManager().IsTimerActive(RespawnTimerHandle);
+}
+
 bool ASPBasePickup::GivePickupTo(APawn* PlayerPawn)
 {
 	return false;
@@ -75,7 +80,6 @@ void ASPBasePickup::PickupWasTaken()
 	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	GetRootComponent()->SetVisibility(false, true);
 
-	FTimerHandle RespawnTimerHandle;
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASPBasePickup::Respawn, RespawnTime);
 }
 
