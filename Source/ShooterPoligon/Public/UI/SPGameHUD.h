@@ -4,12 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "SPCoreTypes.h"
 
 #include "SPGameHUD.generated.h"
 
-/**
- *
- */
 UCLASS()
 class SHOOTERPOLIGON_API ASPGameHUD : public AHUD
 {
@@ -23,4 +21,7 @@ protected:
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
 
 	virtual void BeginPlay() override;
+
+private:
+	void OnMatchStateChanged(ESTUMatchState State);
 };
