@@ -20,8 +20,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> PauseWidgetClass;
+
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY()
+	TMap<ESTUMatchState, UUserWidget*> GameWidgets;
+
+	UPROPERTY()
+	UUserWidget* CurrentWidget = nullptr;
+
 	void OnMatchStateChanged(ESTUMatchState State);
 };
