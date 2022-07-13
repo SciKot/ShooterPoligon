@@ -7,8 +7,17 @@
 
 #include "SPPlayerController.generated.h"
 
+class USPRespawnComponent;
+
 UCLASS()
 class SHOOTERPOLIGON_API ASPPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	ASPPlayerController();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	USPRespawnComponent* RespawnComponent;
 };

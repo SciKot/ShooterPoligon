@@ -8,6 +8,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/Pawn.h"
 #include "TimerManager.h"
+#include "SPGameModeBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All)
 
@@ -47,6 +48,7 @@ void USPHealthComponent::OnTakeAnyDamage(
 
 	if (IsDead())
 	{
+		Killed(InstigatedBy);
 		OnDeath.Broadcast();
 	}
 	else if (isAutoHeal && GetWorld())
@@ -90,4 +92,17 @@ void USPHealthComponent::PlayCameraShake()
 	if (!Controller || !Controller->PlayerCameraManager) return;
 
 	Controller->PlayerCameraManager->StartCameraShake(CameraShake);
+}
+
+void USPHealthComponent::Killed(AController* KillerController)
+{
+	if (!GetWorld()) return;
+
+	const auto GameMode = Cast<ASPGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (!GameMode) return;
+
+	const auto Player = Cast<APawn>(GetOwner());
+	const auto VictimController = Player ? Player->Controller : nullptr;
+
+	GameMode->Killed(KillerController, VictimController);
 }

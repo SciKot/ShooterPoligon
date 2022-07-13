@@ -35,14 +35,6 @@ void ASPBaseWeapon::BeginPlay()
 
 void ASPBaseWeapon::MakeShot() {}
 
-APlayerController* ASPBaseWeapon::GetPlayerController() const
-{
-	const auto Player = Cast<ACharacter>(GetOwner());
-	if (!Player) return nullptr;
-
-	return Player->GetController<APlayerController>();
-}
-
 bool ASPBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const
 {
 	const auto STUCharacter = Cast<ACharacter>(GetOwner());
@@ -50,7 +42,7 @@ bool ASPBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRota
 
 	if (STUCharacter->IsPlayerControlled())
 	{
-		const auto Controller = GetPlayerController();
+		const auto Controller = STUCharacter->GetController<APlayerController>();
 		if (!Controller) return false;
 
 		Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
@@ -104,7 +96,7 @@ void ASPBaseWeapon::DecreaseAmmo()
 		return;
 	}
 	CurrentAmmo.Bullets--;
-	LogAmmo();
+	// LogAmmo();
 
 	if (IsClipEmpty() && !IsAmmoEmpty())
 	{
@@ -141,7 +133,7 @@ void ASPBaseWeapon::ChangeClip()
 		CurrentAmmo.Clips--;
 	}
 	CurrentAmmo.Bullets = DefaultAmmo.Bullets;
-	UE_LOG(LogBaseWeapon, Display, TEXT("-----Change clip-----"));
+	// UE_LOG(LogBaseWeapon, Display, TEXT("-----Change clip-----"));
 }
 
 bool ASPBaseWeapon::CanReload() const

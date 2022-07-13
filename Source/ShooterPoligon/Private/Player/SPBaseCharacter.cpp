@@ -2,15 +2,12 @@
 
 #include "Player/SPBaseCharacter.h"
 
-#include "Camera/CameraComponent.h"
+
 #include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
 #include "Components/SPCharacterMovementComponent.h"
 #include "Components/SPHealthComponent.h"
 #include "Components/SPWeaponComponent.h"
-#include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
-#include "GameFramework/SpringArmComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
 
@@ -19,22 +16,7 @@ ASPBaseCharacter::ASPBaseCharacter(const FObjectInitializer& ObjInit)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
-	// Attaching spring arm component to the root component of character (collision)
-	SpringArmComponent->SetupAttachment(GetRootComponent());
-	// To allow character to look up and down
-	SpringArmComponent->bUsePawnControlRotation = true;
-	SpringArmComponent->SocketOffset = FVector(0.0f, 100.0f, 80.0f);
-
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComponent->SetupAttachment(SpringArmComponent);
-
 	HealthComponent = CreateDefaultSubobject<USPHealthComponent>("HealthComponent");
-
-	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
-	HealthTextComponent->SetupAttachment(GetRootComponent());
-	HealthTextComponent->SetOwnerNoSee(true);
-
 	WeaponComponent = CreateDefaultSubobject<USPWeaponComponent>("WeaponComponent");
 }
 
@@ -43,7 +25,6 @@ void ASPBaseCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	check(HealthComponent);
-	check(HealthTextComponent);
 	check(GetCharacterMovement());
 	check(GetMesh());
 
@@ -59,27 +40,17 @@ void ASPBaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASPBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASPBaseCharacter::SetPlayerColor(const FLinearColor& Color)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	check(PlayerInputComponent);
+	const auto MaterialInst = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+	if (!MaterialInst) return;
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ASPBaseCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ASPBaseCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("LookUp", this, &ASPBaseCharacter::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("TurnAround", this, &ASPBaseCharacter::AddControllerYawInput);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASPBaseCharacter::Jump);
-	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASPBaseCharacter::OnRunningStart);
-	PlayerInputComponent->BindAction("Run", IE_Released, this, &ASPBaseCharacter::OnRunningStop);
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASPBaseCharacter::OnFiringStart);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASPBaseCharacter::OnFiringStop);
-	PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &USPWeaponComponent::NextWeapon);
-	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &USPWeaponComponent::Reload);
+	MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
 }
 
 bool ASPBaseCharacter::isRunning() const
 {
-	return isRunRequested && isMovingForward && !isMovingSideways && !GetVelocity().IsZero();
+	return false;
 }
 
 float ASPBaseCharacter::GetMovementDirection() const
@@ -92,41 +63,6 @@ float ASPBaseCharacter::GetMovementDirection() const
 	return CrossProduct.IsZero() ? AngleBetween : AngleBetween * FMath::Sign(CrossProduct.Z);
 }
 
-void ASPBaseCharacter::MoveForward(float Amount)
-{
-	isMovingForward = Amount > 0;
-	AddMovementInput(GetActorForwardVector(), Amount);
-}
-
-void ASPBaseCharacter::MoveRight(float Amount)
-{
-	isMovingSideways = FMath::Abs(Amount) > 0;
-	AddMovementInput(GetActorRightVector(), Amount);
-}
-
-void ASPBaseCharacter::OnRunningStart()
-{
-	isRunRequested = true;
-	OnFiringStop();
-}
-
-void ASPBaseCharacter::OnRunningStop()
-{
-	isRunRequested = false;
-}
-
-void ASPBaseCharacter::OnFiringStart()
-{
-	if (WeaponComponent && !isRunning()) WeaponComponent->StartFire();
-}
-
-void ASPBaseCharacter::OnFiringStop()
-{
-	if (!WeaponComponent) return;
-
-	WeaponComponent->StopFire();
-}
-
 void ASPBaseCharacter::OnDeath()
 {
 	UE_LOG(LogBaseCharacter, Display, TEXT("Player %s is dead"), *GetName());
@@ -136,10 +72,6 @@ void ASPBaseCharacter::OnDeath()
 	GetCharacterMovement()->DisableMovement();
 
 	SetLifeSpan(LifeSpanOnDeath);
-	if (Controller)
-	{
-		Controller->ChangeState(NAME_Spectating);
-	}
 
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	WeaponComponent->StopFire();
@@ -150,7 +82,6 @@ void ASPBaseCharacter::OnDeath()
 
 void ASPBaseCharacter::OnHealthChanged(float Health, float HealthDelta)
 {
-	HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT(" % .0f"), Health)));
 }
 
 void ASPBaseCharacter::OnGroundLanded(const FHitResult& Hit)
@@ -164,6 +95,3 @@ void ASPBaseCharacter::OnGroundLanded(const FHitResult& Hit)
 	UE_LOG(LogBaseCharacter, Display, TEXT("Final damage: %f"), FinalDamage);
 	TakeDamage(FinalDamage, FDamageEvent(), nullptr, nullptr);
 }
-
-// Note,characters turns with help of controller function.
-// This can help in separating character rotation and camera rotation.

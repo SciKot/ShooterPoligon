@@ -8,6 +8,7 @@
 #include "SPAIController.generated.h"
 
 class USPAIPerceptionComponent;
+class USPRespawnComponent;
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPAIController : public AAIController
@@ -20,6 +21,9 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USPAIPerceptionComponent* SPAIPerceptionComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	USPRespawnComponent* RespawnComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	FName FocusOnKeyName = "EnemyActor";

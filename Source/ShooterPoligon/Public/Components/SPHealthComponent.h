@@ -64,4 +64,6 @@ private:
 	void SetHealth(float Value);
 	void OnAutoHealTimerFired();
 	void PlayCameraShake();
+
+	void Killed(AController* KillerController);
 };
