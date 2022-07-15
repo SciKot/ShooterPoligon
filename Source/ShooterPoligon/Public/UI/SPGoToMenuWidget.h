@@ -5,28 +5,22 @@
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
 
-#include "SPMenuWidget.generated.h"
+#include "SPGoToMenuWidget.generated.h"
 
 class UButton;
 
 UCLASS()
-class SHOOTERPOLIGON_API USPMenuWidget : public UUserWidget
+class SHOOTERPOLIGON_API USPGoToMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UButton* StartGameButton;
-
-	UPROPERTY(meta = (BindWidget))
-	UButton* QuitGameButton;
+	UButton* MainMenuButton;
 
 	virtual void NativeOnInitialized() override;
 
 private:
 	UFUNCTION()
-	void OnStartGame();
-
-	UFUNCTION()
-	void OnQuitGame();
+	void OnGoToMainMenu();
 };
