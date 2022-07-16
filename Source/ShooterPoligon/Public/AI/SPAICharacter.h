@@ -8,6 +8,7 @@
 #include "SPAICharacter.generated.h"
 
 class UBehaviorTree;
+class UWidgetComponent;
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPAICharacter : public ASPBaseCharacter
@@ -20,6 +21,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	UBehaviorTree* BehaviorTreeAsset;
 
+	virtual void Tick(float DeltaTime) override;
+
 protected:
-	virtual void OnDeath();
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UWidgetComponent* HealthWidgetComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
+	float HealthVisibilityDistance = 1000.0f;
+
+	virtual void BeginPlay() override;
+
+	virtual void OnDeath() override;
+	virtual void OnHealthChanged(float Health, float HealthDelta) override;
+
+private:
+	void UpdateHealthWidgetVisibility();
 };

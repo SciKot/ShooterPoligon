@@ -3,8 +3,10 @@
 #include "Menu/UI/SPMenuWidget.h"
 
 #include "Components/Button.h"
+#include "Components/HorizontalBox.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Menu/UI/SPLevelItemWidget.h"
 #include "SPGameInstance.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogSPMenuWidget, All, All);
@@ -22,25 +24,74 @@ void USPMenuWidget::NativeOnInitialized()
 	{
 		QuitGameButton->OnClicked.AddDynamic(this, &USPMenuWidget::OnQuitGame);
 	}
+
+	InitLevelItems();
 }
 
-void USPMenuWidget::OnStartGame()
+void USPMenuWidget::InitLevelItems()
 {
-	if (!GetWorld()) return;
+	const auto SPGameInstance = GetSPGameInstance();
+	if (!SPGameInstance) return;
 
-	const auto STUGameInstance = GetWorld()->GetGameInstance<USPGameInstance>();
-	if (!STUGameInstance) return;
+	checkf(SPGameInstance->GetLevelsData().Num() != 0, TEXT("Levels data must not be empty!"));
 
-	if (STUGameInstance->GetStartupLevelName().IsNone())
+	if (!LevelItemsBox) return;
+	LevelItemsBox->ClearChildren();
+
+	for (auto LevelData : SPGameInstance->GetLevelsData())
 	{
-		UE_LOG(LogSPMenuWidget, Error, TEXT("Level name is NONE"));
-		return;
+		const auto LevelItemWidget = CreateWidget<USPLevelItemWidget>(GetWorld(), LevelItemWidgetClass);
+		if (!LevelItemWidget) continue;
+
+		LevelItemWidget->SetLevelData(LevelData);
+		LevelItemWidget->OnLevelSelected.AddUObject(this, &USPMenuWidget::OnLevelSelected);
+
+		LevelItemsBox->AddChild(LevelItemWidget);
+		LevelItemWidgets.Add(LevelItemWidget);
 	}
 
-	UGameplayStatics::OpenLevel(this, STUGameInstance->GetStartupLevelName());
+	if (SPGameInstance->GetStartupLevel().LevelName.IsNone())
+	{
+		OnLevelSelected(SPGameInstance->GetLevelsData()[0]);
+	}
+	else
+	{
+		OnLevelSelected(SPGameInstance->GetStartupLevel());
+	}
 }
 
 void USPMenuWidget::OnQuitGame()
 {
 	UKismetSystemLibrary::QuitGame(this, GetOwningPlayer(), EQuitPreference::Quit, true);
+}
+
+void USPMenuWidget::OnStartGame()
+{
+	const auto SPGameInstance = GetSPGameInstance();
+	if (!SPGameInstance) return;
+
+	UGameplayStatics::OpenLevel(this, SPGameInstance->GetStartupLevel().LevelName);
+}
+
+void USPMenuWidget::OnLevelSelected(const FLevelData& Data)
+{
+	const auto SPGameInstance = GetSPGameInstance();
+	if (!SPGameInstance) return;
+
+	SPGameInstance->SetStartupLevel(Data);
+
+	for (auto LevelItemWidget : LevelItemWidgets)
+	{
+		if (LevelItemWidget)
+		{
+			const auto IsSelected = Data.LevelName == LevelItemWidget->GetLevelData().LevelName;
+			LevelItemWidget->SetSelected(IsSelected);
+		}
+	}
+}
+
+USPGameInstance* USPMenuWidget::GetSPGameInstance() const
+{
+	if (!GetWorld()) return nullptr;
+	return GetWorld()->GetGameInstance<USPGameInstance>();
 }
