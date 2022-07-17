@@ -5,12 +5,6 @@
 #include "Player/SPPlayerState.h"
 #include "SPGameModeBase.h"
 
-int32 USPGameDataWidget::GetKillsNum() const
-{
-	const auto PlayerState = GetSPPlayerState();
-	return PlayerState ? PlayerState->GetKillsNum() : 0;
-}
-
 int32 USPGameDataWidget::GetCurrentRoundNum() const
 {
 	const auto GameMode = GetSPGameMode();

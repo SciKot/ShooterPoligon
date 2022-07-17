@@ -2,8 +2,10 @@
 
 #include "UI/SPPlayerHUDWidget.h"
 
+#include "Components/ProgressBar.h"
 #include "Components/SPHealthComponent.h"
 #include "Components/SPWeaponComponent.h"
+#include "Player/SPPlayerState.h"
 #include "SPUtils.h"
 
 float USPPlayerHUDWidget::GetHealthPercent() const
@@ -42,6 +44,31 @@ bool USPPlayerHUDWidget::IsPlayerSpecteting() const
 	return Controller && Controller->GetStateName() == NAME_Spectating;
 }
 
+int32 USPPlayerHUDWidget::GetKillsNum() const
+{
+	const auto Controller = GetOwningPlayer();
+	if (!Controller) return 0;
+
+	const auto PlayerState = Cast<ASPPlayerState>(Controller->PlayerState);
+	return PlayerState ? PlayerState->GetKillsNum() : 0;
+}
+
+FString USPPlayerHUDWidget::FormatBullets(int32 BulletsNum) const
+{
+	const int32 MaxLen = 3;
+	const TCHAR PrefixSymbol = '0';
+
+	auto BulletStr = FString::FromInt(BulletsNum);
+	const auto SymbolsNumToAdd = MaxLen - BulletStr.Len();
+
+	if (SymbolsNumToAdd > 0)
+	{
+		BulletStr = FString::ChrN(SymbolsNumToAdd, PrefixSymbol).Append(BulletStr);
+	}
+
+	return BulletStr;
+}
+
 void USPPlayerHUDWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -59,6 +86,7 @@ void USPPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)
 	{
 		OnTakeDamage();
 	}
+	UpdateHealthBar();
 }
 
 void USPPlayerHUDWidget::OnNewPawn(APawn* NewPawn)
@@ -67,5 +95,14 @@ void USPPlayerHUDWidget::OnNewPawn(APawn* NewPawn)
 	if (HealthComponent && !HealthComponent->OnHealthChanged.IsBoundToObject(this))
 	{
 		HealthComponent->OnHealthChanged.AddUObject(this, &USPPlayerHUDWidget::OnHealthChanged);
+	}
+	UpdateHealthBar();
+}
+
+void USPPlayerHUDWidget::UpdateHealthBar()
+{
+	if (HealthProgressBar)
+	{
+		HealthProgressBar->SetFillColorAndOpacity(GetHealthPercent() > PercentColorThreshold ? GoodColor : BadColor);
 	}
 }
