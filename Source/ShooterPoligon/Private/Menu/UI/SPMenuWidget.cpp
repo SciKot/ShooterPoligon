@@ -9,6 +9,7 @@
 #include "Menu/UI/SPLevelItemWidget.h"
 #include "Menu/UI/SPMenuWidget.h"
 #include "SPGameInstance.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogSPMenuWidget, All, All);
 
@@ -79,6 +80,7 @@ void USPMenuWidget::OnQuitGame()
 void USPMenuWidget::OnStartGame()
 {
 	PlayAnimation(HideAnimation);
+	UGameplayStatics::PlaySound2D(GetWorld(), StartGameSound);
 }
 
 void USPMenuWidget::OnLevelSelected(const FLevelData& Data)

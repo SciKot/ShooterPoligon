@@ -7,6 +7,8 @@
 
 #include "SPBaseWidget.generated.h"
 
+class USoundCue;
+
 UCLASS()
 class SHOOTERPOLIGON_API USPBaseWidget : public UUserWidget
 {
@@ -18,4 +20,7 @@ public:
 protected:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ShowAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* OpenSound;
 };
