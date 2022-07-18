@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
 #include "SPCoreTypes.h"
+#include "UI/SPBaseWidget.h"
 
 #include "SPGameOverWidget.generated.h"
 
@@ -12,7 +12,7 @@ class UVerticalBox;
 class UButton;
 
 UCLASS()
-class SHOOTERPOLIGON_API USPGameOverWidget : public UUserWidget
+class SHOOTERPOLIGON_API USPGameOverWidget : public USPBaseWidget
 {
 	GENERATED_BODY()
 

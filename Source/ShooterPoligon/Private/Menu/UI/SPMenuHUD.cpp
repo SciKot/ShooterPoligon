@@ -2,7 +2,7 @@
 
 #include "Menu/UI/SPMenuHUD.h"
 
-#include "Blueprint/UserWidget.h"
+#include "UI/SPBaseWidget.h"
 
 void ASPMenuHUD::BeginPlay()
 {
@@ -10,10 +10,11 @@ void ASPMenuHUD::BeginPlay()
 
 	if (MenuWidgetClass)
 	{
-		const auto MenuWidget = CreateWidget<UUserWidget>(GetWorld(), MenuWidgetClass);
+		const auto MenuWidget = CreateWidget<USPBaseWidget>(GetWorld(), MenuWidgetClass);
 		if (MenuWidget)
 		{
 			MenuWidget->AddToViewport();
+			MenuWidget->Show();
 		}
 	}
 }

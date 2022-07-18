@@ -8,6 +8,8 @@
 
 #include "SPGameHUD.generated.h"
 
+class USPBaseWidget;
+
 UCLASS()
 class SHOOTERPOLIGON_API ASPGameHUD : public AHUD
 {
@@ -30,10 +32,10 @@ protected:
 
 private:
 	UPROPERTY()
-	TMap<ESTUMatchState, UUserWidget*> GameWidgets;
+	TMap<ESTUMatchState, USPBaseWidget*> GameWidgets;
 
 	UPROPERTY()
-	UUserWidget* CurrentWidget = nullptr;
+	USPBaseWidget* CurrentWidget = nullptr;
 
 	void OnMatchStateChanged(ESTUMatchState State);
 };

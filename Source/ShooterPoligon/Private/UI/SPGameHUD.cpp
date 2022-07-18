@@ -2,9 +2,9 @@
 
 #include "UI/SPGameHUD.h"
 
-#include "Blueprint/UserWidget.h"
 #include "Engine/Canvas.h"
 #include "SPGameModeBase.h"
+#include "UI/SPBaseWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogSPGameHUD, All, All);
 
@@ -17,9 +17,9 @@ void ASPGameHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GameWidgets.Add(ESTUMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass));
-	GameWidgets.Add(ESTUMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidgetClass));
-	GameWidgets.Add(ESTUMatchState::GameOver, CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetClass));
+	GameWidgets.Add(ESTUMatchState::InProgress, CreateWidget<USPBaseWidget>(GetWorld(), PlayerHUDWidgetClass));
+	GameWidgets.Add(ESTUMatchState::Pause, CreateWidget<USPBaseWidget>(GetWorld(), PauseWidgetClass));
+	GameWidgets.Add(ESTUMatchState::GameOver, CreateWidget<USPBaseWidget>(GetWorld(), GameOverWidgetClass));
 
 	for (auto GameWidgetPair : GameWidgets)
 	{
@@ -55,6 +55,7 @@ void ASPGameHUD::OnMatchStateChanged(ESTUMatchState State)
 	if (CurrentWidget)
 	{
 		CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+		CurrentWidget->Show();
 	}
 
 	UE_LOG(LogSPGameHUD, Display, TEXT("Match state changed: %s"), *UEnum::GetValueAsString(State));

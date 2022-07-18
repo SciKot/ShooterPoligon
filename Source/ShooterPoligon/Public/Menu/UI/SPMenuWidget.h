@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
 #include "SPCoreTypes.h"
+#include "UI/SPBaseWidget.h"
 
 #include "SPMenuWidget.generated.h"
 
@@ -14,7 +14,7 @@ class USPGameInstance;
 class USPLevelItemWidget;
 
 UCLASS()
-class SHOOTERPOLIGON_API USPMenuWidget : public UUserWidget
+class SHOOTERPOLIGON_API USPMenuWidget : public USPBaseWidget
 {
 	GENERATED_BODY()
 
@@ -31,7 +31,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> LevelItemWidgetClass;
 
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* HideAnimation;
+
 	virtual void NativeOnInitialized() override;
+	virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
 
 private:
 	UPROPERTY()

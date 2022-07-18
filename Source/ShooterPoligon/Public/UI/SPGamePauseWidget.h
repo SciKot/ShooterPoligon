@@ -2,15 +2,15 @@
 
 #pragma once
 
-#include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
+#include "UI/SPBaseWidget.h"
 
 #include "SPGamePauseWidget.generated.h"
 
 class UButton;
 
 UCLASS()
-class SHOOTERPOLIGON_API USPGamePauseWidget : public UUserWidget
+class SHOOTERPOLIGON_API USPGamePauseWidget : public USPBaseWidget
 {
 	GENERATED_BODY()
 

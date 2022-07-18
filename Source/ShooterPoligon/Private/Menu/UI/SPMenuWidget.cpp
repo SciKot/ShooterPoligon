@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Menu/UI/SPLevelItemWidget.h"
+#include "Menu/UI/SPMenuWidget.h"
 #include "SPGameInstance.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogSPMenuWidget, All, All);
@@ -26,6 +27,16 @@ void USPMenuWidget::NativeOnInitialized()
 	}
 
 	InitLevelItems();
+}
+
+void USPMenuWidget::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)
+{
+	if (Animation != HideAnimation) return;
+
+	const auto SPGameInstance = GetSPGameInstance();
+	if (!SPGameInstance) return;
+
+	UGameplayStatics::OpenLevel(this, SPGameInstance->GetStartupLevel().LevelName);
 }
 
 void USPMenuWidget::InitLevelItems()
@@ -67,10 +78,7 @@ void USPMenuWidget::OnQuitGame()
 
 void USPMenuWidget::OnStartGame()
 {
-	const auto SPGameInstance = GetSPGameInstance();
-	if (!SPGameInstance) return;
-
-	UGameplayStatics::OpenLevel(this, SPGameInstance->GetStartupLevel().LevelName);
+	PlayAnimation(HideAnimation);
 }
 
 void USPMenuWidget::OnLevelSelected(const FLevelData& Data)
