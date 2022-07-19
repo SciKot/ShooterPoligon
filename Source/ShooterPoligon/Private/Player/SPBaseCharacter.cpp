@@ -2,12 +2,13 @@
 
 #include "Player/SPBaseCharacter.h"
 
-
 #include "Components/CapsuleComponent.h"
 #include "Components/SPCharacterMovementComponent.h"
 #include "Components/SPHealthComponent.h"
 #include "Components/SPWeaponComponent.h"
 #include "GameFramework/Controller.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
 
@@ -78,11 +79,11 @@ void ASPBaseCharacter::OnDeath()
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
 }
 
-void ASPBaseCharacter::OnHealthChanged(float Health, float HealthDelta)
-{
-}
+void ASPBaseCharacter::OnHealthChanged(float Health, float HealthDelta) {}
 
 void ASPBaseCharacter::OnGroundLanded(const FHitResult& Hit)
 {

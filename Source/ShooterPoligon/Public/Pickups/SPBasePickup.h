@@ -8,6 +8,7 @@
 #include "SPBasePickup.generated.h"
 
 class USphereComponent;
+class USoundCue;
 
 UCLASS()
 class SHOOTERPOLIGON_API ASPBasePickup : public AActor
@@ -23,6 +24,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 	float RespawnTime = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* SoundOfUse;
 
 	UPROPERTY()
 	TArray<APawn*> OverlappingPawns;

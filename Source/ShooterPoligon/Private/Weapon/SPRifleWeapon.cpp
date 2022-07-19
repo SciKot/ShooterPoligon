@@ -2,10 +2,13 @@
 
 #include "Weapon/SPRifleWeapon.h"
 
+#include "Components/AudioComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Sound/SoundCue.h"
 #include "Weapon/Components/SPWeaponFXComponent.h"
 
 ASPRifleWeapon::ASPRifleWeapon()
@@ -22,7 +25,7 @@ void ASPRifleWeapon::BeginPlay()
 
 void ASPRifleWeapon::StartFire()
 {
-	InitMuzzleFX();
+	InitFX();
 	GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASPRifleWeapon::MakeShot, TimeBetweenShots, true);
 	MakeShot();
 }
@@ -30,7 +33,7 @@ void ASPRifleWeapon::StartFire()
 void ASPRifleWeapon::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(ShotTimerHandle);
-	SetMuzzleFXVisibility(false);
+	SetFXActive(false);
 }
 
 void ASPRifleWeapon::MakeShot()
@@ -61,6 +64,7 @@ void ASPRifleWeapon::MakeShot()
 		WeaponFXComponent->PlayImpactFX(HitResult);
 	}
 
+
 	SpawnTraceFX(GetMuzzleWorldLocation(), TraceFXEnd);
 	DecreaseAmmo();
 }
@@ -86,21 +90,31 @@ void ASPRifleWeapon::MakeDamage(const FHitResult& HitResult)
 	DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), GetController(), this);
 }
 
-void ASPRifleWeapon::InitMuzzleFX()
+void ASPRifleWeapon::InitFX()
 {
 	if (!MuzzleFXComponent)
 	{
 		MuzzleFXComponent = SpawnMuzzleFX();
 	}
-	SetMuzzleFXVisibility(true);
+
+	if (!FireAudioComponent)
+	{
+		FireAudioComponent = UGameplayStatics::SpawnSoundAttached(FireSound, WeaponMesh, MuzzleSocketName);
+	}
+	SetFXActive(true);
 }
 
-void ASPRifleWeapon::SetMuzzleFXVisibility(bool Visible)
+void ASPRifleWeapon::SetFXActive(bool IsActive)
 {
 	if (MuzzleFXComponent)
 	{
-		MuzzleFXComponent->SetPaused(!Visible);
-		MuzzleFXComponent->SetVisibility(Visible, true);
+		MuzzleFXComponent->SetPaused(!IsActive);
+		MuzzleFXComponent->SetVisibility(IsActive, true);
+	}
+
+	if (FireAudioComponent)
+	{
+		FireAudioComponent->SetPaused(!IsActive);
 	}
 }
 

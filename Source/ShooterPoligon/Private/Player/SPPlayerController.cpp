@@ -3,6 +3,7 @@
 #include "Player/SPPlayerController.h"
 
 #include "Components/SPRespawnComponent.h"
+#include "SPGameInstance.h"
 #include "SPGameModeBase.h"
 
 ASPPlayerController::ASPPlayerController()
@@ -30,6 +31,7 @@ void ASPPlayerController::SetupInputComponent()
 	if (!InputComponent) return;
 
 	InputComponent->BindAction("PauseGame", IE_Pressed, this, &ASPPlayerController::OnPauseGame);
+	InputComponent->BindAction("Mute", IE_Pressed, this, &ASPPlayerController::OnMuteSound);
 }
 
 void ASPPlayerController::OnPauseGame()
@@ -51,4 +53,14 @@ void ASPPlayerController::OnMatchStateChanged(ESTUMatchState State)
 		SetInputMode(FInputModeUIOnly());
 		bShowMouseCursor = true;
 	}
+}
+
+void ASPPlayerController::OnMuteSound()
+{
+	if (!GetWorld()) return;
+
+	const auto STUGameInstace = GetWorld()->GetGameInstance<USPGameInstance>();
+	if (!STUGameInstace) return;
+
+	STUGameInstace->ToggleVolume();
 }

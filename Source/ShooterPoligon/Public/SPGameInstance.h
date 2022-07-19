@@ -8,6 +8,8 @@
 
 #include "SPGameInstance.generated.h"
 
+class USoundClass;
+
 UCLASS()
 class SHOOTERPOLIGON_API USPGameInstance : public UGameInstance
 {
@@ -21,12 +23,17 @@ public:
 
 	FName GetMainMenuLevelName() const { return MainMenuLevelName; }
 
+	void ToggleVolume();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Game", meta = (ToolTip = "Level names must be unique!"))
 	TArray<FLevelData> LevelsData;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Game")
 	FName MainMenuLevelName = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundClass* MasterSoundClass;
 
 private:
 	FLevelData StartupLevel;

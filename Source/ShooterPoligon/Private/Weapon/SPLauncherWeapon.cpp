@@ -2,6 +2,8 @@
 
 #include "Weapon/SPLauncherWeapon.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "Weapon/SPProjectile.h"
 
 void ASPLauncherWeapon::StartFire()
@@ -11,7 +13,13 @@ void ASPLauncherWeapon::StartFire()
 
 void ASPLauncherWeapon::MakeShot()
 {
-	if (!GetWorld() || IsAmmoEmpty()) return;
+	if (!GetWorld()) return;
+
+	if (IsAmmoEmpty())
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), NoAmmoSound, GetActorLocation());
+		return;
+	}
 
 	FVector TraceStart, TraceEnd;
 	if (!GetTraceData(TraceStart, TraceEnd)) return;
@@ -33,4 +41,5 @@ void ASPLauncherWeapon::MakeShot()
 
 	DecreaseAmmo();
 	SpawnMuzzleFX();
+	UGameplayStatics::SpawnSoundAttached(FireSound, WeaponMesh, MuzzleSocketName);
 }

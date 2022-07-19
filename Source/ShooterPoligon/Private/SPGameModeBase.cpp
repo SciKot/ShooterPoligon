@@ -108,7 +108,7 @@ void ASPGameModeBase::StartRound()
 
 void ASPGameModeBase::GameTimerUpdate()
 {
-	UE_LOG(LogSPGameModeBase, Display, TEXT("Time: %i / Round: %i/%i"), RoundCountDown, CurrentRound, GameData.RoundsNum);
+	// UE_LOG(LogSPGameModeBase, Display, TEXT("Time: %i / Round: %i/%i"), RoundCountDown, CurrentRound, GameData.RoundsNum);
 
 	if (--RoundCountDown == 0)
 	{

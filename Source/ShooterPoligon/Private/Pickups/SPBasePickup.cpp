@@ -3,6 +3,8 @@
 #include "Pickups/SPBasePickup.h"
 
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBasePickup, All, All)
 
@@ -79,6 +81,8 @@ void ASPBasePickup::PickupWasTaken()
 {
 	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	GetRootComponent()->SetVisibility(false, true);
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundOfUse, GetActorLocation());
 
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASPBasePickup::Respawn, RespawnTime);
 }
