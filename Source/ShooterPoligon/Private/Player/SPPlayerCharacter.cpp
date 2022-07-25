@@ -3,10 +3,10 @@
 #include "Player/SPPlayerCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/SPWeaponComponent.h"
 #include "Components/SphereComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 ASPPlayerCharacter::ASPPlayerCharacter(const FObjectInitializer& ObjInit) : Super(ObjInit)
@@ -45,6 +45,10 @@ void ASPPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASPPlayerCharacter::OnFiringStop);
 	PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &USPWeaponComponent::NextWeapon);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &USPWeaponComponent::Reload);
+
+	DECLARE_DELEGATE_OneParam(FZoomInputSignature, bool);
+	PlayerInputComponent->BindAction<FZoomInputSignature>("Zoom", IE_Pressed, WeaponComponent, &USPWeaponComponent::Zoom, true);
+	PlayerInputComponent->BindAction<FZoomInputSignature>("Zoom", IE_Released, WeaponComponent, &USPWeaponComponent::Zoom, false);
 }
 
 bool ASPPlayerCharacter::isRunning() const
@@ -87,12 +91,14 @@ void ASPPlayerCharacter::OnFiringStop()
 	WeaponComponent->StopFire();
 }
 
-void ASPPlayerCharacter::OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASPPlayerCharacter::OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	CheckCameraOverlap();
 }
 
-void ASPPlayerCharacter::OnCameraCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ASPPlayerCharacter::OnCameraCollisionEndOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	CheckCameraOverlap();
 }

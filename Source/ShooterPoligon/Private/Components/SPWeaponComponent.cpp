@@ -89,6 +89,14 @@ bool USPWeaponComponent::IsAmmoNeeded(TSubclassOf<ASPBaseWeapon> WeaponType)
 	return false;
 }
 
+void USPWeaponComponent::Zoom(bool Enabled)
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Zoom(Enabled);
+	}
+}
+
 void USPWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -154,6 +162,7 @@ void USPWeaponComponent::EquipWeapon(int32 WeaponIndex)
 
 	if (CurrentWeapon)
 	{
+		CurrentWeapon->Zoom(false);
 		CurrentWeapon->StopFire();
 		AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponArmorySocketName);
 	}

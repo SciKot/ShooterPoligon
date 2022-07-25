@@ -75,6 +75,7 @@ void ASPBaseCharacter::OnDeath()
 	SetLifeSpan(LifeSpanOnDeath);
 
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	WeaponComponent->Zoom(false);
 	WeaponComponent->StopFire();
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

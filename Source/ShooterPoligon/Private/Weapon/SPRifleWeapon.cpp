@@ -36,6 +36,19 @@ void ASPRifleWeapon::StopFire()
 	SetFXActive(false);
 }
 
+void ASPRifleWeapon::Zoom(bool Enabled)
+{
+	const auto Controller = Cast<APlayerController>(GetController());
+	if (!Controller || !Controller->PlayerCameraManager) return;
+
+	if (Enabled)
+	{
+		DefaultCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
+	}
+
+	Controller->PlayerCameraManager->SetFOV(Enabled ? FOVZoomAngle : DefaultCameraFOV);
+}
+
 void ASPRifleWeapon::MakeShot()
 {
 	if (!GetWorld() || IsAmmoEmpty())
@@ -63,7 +76,6 @@ void ASPRifleWeapon::MakeShot()
 
 		WeaponFXComponent->PlayImpactFX(HitResult);
 	}
-
 
 	SpawnTraceFX(GetMuzzleWorldLocation(), TraceFXEnd);
 	DecreaseAmmo();
