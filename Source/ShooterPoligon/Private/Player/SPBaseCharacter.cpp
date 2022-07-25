@@ -95,5 +95,5 @@ void ASPBaseCharacter::OnGroundLanded(const FHitResult& Hit)
 
 	const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
 	UE_LOG(LogBaseCharacter, Display, TEXT("Final damage: %f"), FinalDamage);
-	TakeDamage(FinalDamage, FDamageEvent(), nullptr, nullptr);
+	TakeDamage(FinalDamage, FPointDamageEvent{}, nullptr, nullptr);
 }
