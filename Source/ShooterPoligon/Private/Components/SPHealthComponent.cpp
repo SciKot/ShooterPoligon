@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "Perception/AISense_Damage.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "SPGameModeBase.h"
 #include "TimerManager.h"
@@ -129,6 +130,7 @@ void USPHealthComponent::ApplyDamage(float Damage, AController* InstigatedBy)
 	}
 
 	PlayCameraShake();
+	ReportDamageEvent(Damage, InstigatedBy);
 }
 
 float USPHealthComponent::GetPointDamageModifier(AActor* DamagedActor, const FName& BoneName)
@@ -143,4 +145,16 @@ float USPHealthComponent::GetPointDamageModifier(AActor* DamagedActor, const FNa
 	if (!PhysMaterial || !DamageModifiers.Contains(PhysMaterial)) return 1.0f;
 
 	return DamageModifiers[PhysMaterial];
+}
+
+void USPHealthComponent::ReportDamageEvent(float Damage, AController* InstigatedBy)
+{
+	if (!InstigatedBy || !InstigatedBy->GetPawn() || !GetOwner()) return;
+
+	UAISense_Damage::ReportDamageEvent(GetWorld(),		//
+		GetOwner(),										//
+		InstigatedBy->GetPawn(),						//
+		Damage,											//
+		InstigatedBy->GetPawn()->GetActorLocation(),	//
+		GetOwner()->GetActorLocation());
 }
