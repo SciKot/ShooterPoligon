@@ -41,6 +41,20 @@ void ASPBaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ASPBaseCharacter::TurnOff()
+{
+	WeaponComponent->Zoom(false);
+	WeaponComponent->StopFire();
+	Super::TurnOff();
+}
+
+void ASPBaseCharacter::Reset()
+{
+	WeaponComponent->Zoom(false);
+	WeaponComponent->StopFire();
+	Super::Reset();
+}
+
 void ASPBaseCharacter::SetPlayerColor(const FLinearColor& Color)
 {
 	const auto MaterialInst = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);

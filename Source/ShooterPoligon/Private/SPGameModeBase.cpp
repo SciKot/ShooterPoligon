@@ -4,6 +4,7 @@
 
 #include "AIController.h"
 #include "Components/SPRespawnComponent.h"
+#include "Components/SPWeaponComponent.h"
 #include "EngineUtils.h"
 #include "Player/SPBaseCharacter.h"
 #include "Player/SPPlayerController.h"
@@ -71,6 +72,7 @@ bool ASPGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDele
 	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
 	if (PauseSet)
 	{
+		StopAllFire();
 		SetMatchState(ESTUMatchState::Pause);
 	}
 	return PauseSet;
@@ -243,4 +245,16 @@ void ASPGameModeBase::SetMatchState(ESTUMatchState State)
 
 	MatchState = State;
 	OnMatchStateChanged.Broadcast(MatchState);
+}
+
+void ASPGameModeBase::StopAllFire()
+{
+	for (auto Pawn : TActorRange<APawn>(GetWorld()))
+	{
+		const auto WeaponComponent = SPUtils::GetSPPlayerComponent<USPWeaponComponent>(Pawn);
+		if (!WeaponComponent) continue;
+
+		WeaponComponent->Zoom(false);
+		WeaponComponent->StopFire();
+	}
 }

@@ -31,8 +31,7 @@ void ASPAIController::OnPossess(APawn* InPawn)
 void ASPAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	const auto AimActor = GetActorToFocusOn();
-	SetFocus(AimActor);
+	SetFocus(GetActorToFocusOn());
 }
 
 AActor* ASPAIController::GetActorToFocusOn() const
