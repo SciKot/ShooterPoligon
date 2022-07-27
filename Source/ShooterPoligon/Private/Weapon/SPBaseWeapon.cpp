@@ -30,7 +30,7 @@ void ASPBaseWeapon::BeginPlay()
 
 	check(WeaponMesh);
 	checkf(DefaultAmmo.Bullets > 0, TEXT("Default bullets couldn't be less or equal zero."));
-	checkf(DefaultAmmo.Clips > 0, TEXT("Default clips couldn't be less or equal zero.")) CurrentAmmo = DefaultAmmo;
+	checkf(DefaultAmmo.Clips >= 0, TEXT("Default clips couldn't be less or equal zero.")) CurrentAmmo = DefaultAmmo;
 }
 
 void ASPBaseWeapon::MakeShot() {}

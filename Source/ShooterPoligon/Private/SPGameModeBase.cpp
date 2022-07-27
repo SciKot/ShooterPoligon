@@ -165,7 +165,7 @@ void ASPGameModeBase::CreateTeamsInfo()
 		PlayerState->SetPlayerName(Controller->IsPlayerController() ? "Player" : "Bot");
 		SetPlayerColor(Controller);
 
-		TeamID = TeamID == 1 ? 2 : 1;
+		TeamID = TeamID % GameData.TeamsNum + 1;
 	}
 }
 
